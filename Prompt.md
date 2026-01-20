@@ -74,3 +74,56 @@
 ## 📖 Documentación API (Swagger)
 
 Configurar en `main.ts` (o módulo correspondiente):
+
+
+
+
+## FRONTEND
+
+en frontend 1. configura TailwindCSS con estilos globales y utilidades base de Tailwind., asegurar compatibilidad con react-compiler., 2.en src crea una estructura escalable de carpetas components, pages, routes, schemas, ui, 3.configura React Route y agrega una ruta / y /historial 4.en components crea componetes reutilizables de inputNumber que Manejo de errores y labels, Button con las siguientes props  label: string;
+
+type?: ButtonType;
+
+onClick?: () => void;
+
+disabled?: boolean; Form reutilizable que reciba las siguientes props: type FieldConfig = {
+
+label: string;
+
+name: string;
+
+placeholder?: string;
+
+type?: "text" | "number"
+
+rules?: RegisterOptions;
+
+inputType: "text" | "date";
+
+};
+
+interface FormProps {
+
+schema: ZodSchema<any>;
+
+fields: FieldConfig[];
+
+buttonProps: {
+
+label: string;
+
+type?: "submit" | "button";
+
+variant?: "primary" | "secondary";
+
+floating?: boolean;
+
+disabled?: boolean;
+
+};
+
+onSubmit: (data: any) => void;
+
+defaultValues?: any;
+
+} para el boton del formulario debe usar el componete button  y table que reciba columnas y datos por props, debe renderizar diferentes tipos de datos 5. en la ruta / debe crear un formulario con el componete form, el fomulario debe tner los siguientes campos: monto, tasa de interés mensual, plazo (en meses),
