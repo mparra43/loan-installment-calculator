@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 // Configs
 import appConfig from './config/app.config';
 import { InfrastructureModule } from '@infrastructure/infrastructure.module';
+import { LoanCalculatorModule } from '@modules/loan-calculator/loan-calculator.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { InfrastructureModule } from '@infrastructure/infrastructure.module';
       envFilePath: '.env',
     }),
       InfrastructureModule,
+      LoanCalculatorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
