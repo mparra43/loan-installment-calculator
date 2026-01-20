@@ -96,3 +96,44 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Base de datos (Docker)
+
+- Imagen: postgres:16-alpine (oficial y estable)
+- Variables: se leen de `backend/.env` (DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
+- Persistencia: volumen `postgres-data` mantiene los datos entre reinicios
+- Red: red interna `app-net` para comunicación segura con el backend
+
+### Levantar la base de datos
+
+```powershell
+cd c:\Users\lorep\Desktop\loan-installment-calculator\backend
+docker compose up -d postgres
+```
+
+### Levantar backend + base de datos
+
+```powershell
+cd c:\Users\lorep\Desktop\loan-installment-calculator\backend
+docker compose up -d
+```
+
+### Cambiar credenciales o nombre de BD
+
+- Edita `backend/.env`:
+  - DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE
+- Aplica cambios:
+
+```powershell
+cd c:\Users\lorep\Desktop\loan-installment-calculator\backend
+docker compose down
+docker compose up -d
+```
+
+### Scripts de inicialización (opcional)
+
+- Coloca archivos `.sql` o `.sh` en `backend/docker/initdb/` para crear esquemas/datos básicos en el primer arranque.
+
+### Healthcheck
+
+- El backend espera a que Postgres esté listo antes de conectarse.
