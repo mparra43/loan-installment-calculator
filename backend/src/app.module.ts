@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 // Modules
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
 
 // Configs
 import appConfig from './config/app.config';
@@ -20,6 +20,6 @@ import { LoanCalculatorModule } from '@modules/loan-calculator/loan-calculator.m
       LoanCalculatorModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}
