@@ -1,9 +1,76 @@
-1. en value-objects Crear un Value Object que encapsule los detalles de un pago mensual el cual debe representar una cuota del préstamo con las siguientes propiedades: month: number, payment: number, principal: number, interest: number, balance: number , ademas debera arantizar consistencia y validación básica de los valores 2.En entities Crear la entidad del dominio LoanCalculation, responsable de definir la estructura y el comportamiento del cálculo de préstamos. con los siguientes atributos id: string, amount: number, interestRate: number, termInMonths: number, totalAmount: number, monthlyPayment: number, totalInterest: number, payments: PaymentVO[], createdAt: Date, debe calcular el valor de la cuota mensual. Calcular el total de intereses. Generar el cronograma de pagos. Exponer métodos que mantengan la invariancia del dominio.3 en repositories Definir una interfaz de repositorio para el dominio LoanCalculation. 4. en entities Crear una entidad de infraestructura utilizando TypeORM que represente el modelo de base de datos para los cálculos de préstamos. con las siguientes propiedades amount: number , termMonths: number , interestRate: number , interestType: string, monthlyPayment: number , totalInterest: number , totalPayment: number  , createdAt: Date, Definir correctamente tipos, columnas y configuraciones necesarias y prepara la entidad para futuras migraciones
 
-genera una migración inicial para loan-calculation.typeorm.entity.ts y conecta loan-calculation.repository.interface.ts a la entidad loan-calculation.typeorm.entity.ts
+## 📦 Domain Layer
 
-en dto Utilizar el decorador @ApiProperty de @nestjs/swagger  en cada dto, Indicar el tipo de dato correctamente para que Swagger lo represente de forma adecuada. 1. en calculate-loan.dto.ts Crear un DTO para recibir datos desde el request body, con  las siguientes propiedades: amount: number, interestRate: number, termInMonths: number 2. payment.dto.ts Crear un DTO con  las siguientes propiedades: month: number; payment: number; principal: number; interest: number; balance: number; 3 en loan-response.dto.ts Crear un DTO con  las siguientes propiedades: totalAmount: number; monthlyPayment: number; totalInterest: number; payments: PaymentDto[] 4. en loan-list-response.dto.ts Crear un DTO con  las siguientes propiedades:  amount: number, termMonths: number  , interestRate: number , interestType: string, totalInterest: number  , totalPayment: number    , monthlyPayment: number
+### 1. Value Objects (`value-objects`)
+- **PaymentVO**  
+  Encapsula la información de cada cuota del préstamo.  
+  Campos: `month`, `payment`, `principal`, `interest`, `balance`.  
+  Responsabilidades: validar que los valores sean positivos y coherentes entre sí (ej. `principal + interest = payment`).
 
-1. en loan-calculator.service.ts Crear un servicio en  que contenga la lógica de negocio con el método calculate que ejecute  la lógica del cálculo , persistir el resultado utilizando las entidades y repositorios de domain , tambien implementar el método findAll que debe consultar el repositorio y retornar el historial completo de cálculos 2. en loan-calculator.controller.ts Crear un controlador que Implemente un método POST para crear un nuevo cálculo El endpoint debe recibir un calculate-loan.dto.ts desde el body, y invocaral loan-calculator.service.ts y retornar loan-response.dto.ts y implemente método GET para obtener el historial de cálculo invcando a loan-calculator.service.ts y retornado loan-list-response.dto.ts
+### 2. Entities (`entities`)
+- **LoanCalculation (entidad de dominio)**  
+  Atributos: `id`, `amount`, `interestRate`, `termInMonths`, `totalAmount`, `monthlyPayment`, `totalInterest`, `payments: PaymentVO[]`, `createdAt`.  
+  Comportamiento:  
+  – Calcular la cuota fija mensual (amortización francesa).  
+  – Calcular el total de intereses pagados.  
+  – Generar el cronograma completo de pagos.  
+  – Garantizar invariantes: monto > 0, tasa ≥ 0, plazo > 0 meses.
 
-en backend Configura Swagger utilizando @nestjs/swagger, define  la documentación base con título de la API, descripción, versión, habilitar Swagger UI en la  ruta api/docs
+### 3. Repositories (`repositories`)
+- **ILoanCalculationRepository**  
+  Interfaz de dominio que expone:  
+  – `save(loan: LoanCalculation): Promise<LoanCalculation>`  
+  – `findAll(): Promise<LoanCalculation[]>`  
+  – `findById(id: string): Promise<LoanCalculation | null>`
+
+### 4. Infraestructura (`infrastructure`)
+- **LoanCalculationTypeOrmEntity**  
+  Entidad TypeORM que refleja la tabla `loan_calculations`.  
+  Campos: `amount`, `termMonths`, `interestRate`, `interestType`, `monthlyPayment`, `totalInterest`, `totalPayment`, `createdAt`.  
+  Configuraciones: tipos de columna, longitudes, índices y preparación para migraciones.
+
+- **Migraciones**  
+  Generar migración inicial:  
+  `npm run migration:generate -- -n CreateLoanCalculationsTable`
+
+- **LoanCalculationTypeOrmRepository**  
+  Implementa `ILoanCalculationRepository` adaptando la entidad TypeORM al modelo de dominio.
+
+---
+
+## 🚚 Application Layer
+
+### DTOs (`dto`) – todos con `@ApiProperty`
+
+| Archivo | Propósito | Campos |
+|---------|-----------|--------|
+| `calculate-loan.dto.ts` | Entrada del endpoint POST | `amount: number`, `interestRate: number`, `termInMonths: number` |
+| `payment.dto.ts` | Representa una cuota | `month`, `payment`, `principal`, `interest`, `balance` |
+| `loan-response.dto.ts` | Salida del cálculo único | `totalAmount`, `monthlyPayment`, `totalInterest`, `payments: PaymentDto[]` |
+| `loan-list-response.dto.ts` | Elemento del historial | `amount`, `termMonths`, `interestRate`, `interestType`, `totalInterest`, `totalPayment`, `monthlyPayment` |
+
+---
+
+## 🎮 Presentation Layer
+
+### Servicio (`loan-calculator.service.ts`)
+- **`calculate(dto: CalculateLoanDto): Promise<LoanResponseDto>`**  
+  – Ejecuta la lógica de negocio.  
+  – Persiste el resultado mediante el repositorio de dominio.  
+  – Retorna el DTO de respuesta.
+
+- **`findAll(): Promise<LoanListResponseDto[]>`**  
+  – Consulta el repositorio y devuelve el historial completo mapeado a DTOs.
+
+### Controlador (`loan-calculator.controller.ts`)
+- **POST /loans/calculate**  
+  Recibe `CalculateLoanDto` → invoca servicio → retorna `LoanResponseDto`.
+
+- **GET /loans**  
+  Retorna `LoanListResponseDto[]` con el historial de cálculos.
+
+---
+
+## 📖 Documentación API (Swagger)
+
+Configurar en `main.ts` (o módulo correspondiente):
