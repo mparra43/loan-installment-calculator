@@ -8,10 +8,9 @@ const TypeormConfig = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    //ssl: process.env.DB_SSL === 'true',
     synchronize: false,
     entities: ['dist/**/*.entity.js'],
-    migrations: ['dist/migrations/*.js'],
+    migrations: ['dist/infrastructure/database/migrations/*.js'],
     logging: true,
     logger: 'advanced-console',
 }
