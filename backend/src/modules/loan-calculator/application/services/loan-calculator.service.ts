@@ -1,25 +1,34 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, Inject } from '@nestjs/common'
 import { LoanCalculation } from '@modules/loan-calculator/domain/entities/loan-calculation.entity'
-import { LoanCalculationRepository } from '@modules/loan-calculator/domain/ports/loan-calculation.interface'
+import type { LoanCalculationRepository } from '@modules/loan-calculator/domain/ports/loan-calculation.interface'
 import { CalculateLoanDto } from '@modules/loan-calculator/presentation/dto/calculate-loan.dto'
 import { LoanResponseDto } from '@modules/loan-calculator/presentation/dto/loan-response.dto'
 import { PaymentDto } from '@modules/loan-calculator/presentation/dto/payment.dto'
 import { LoanListResponseDto } from '@modules/loan-calculator/presentation/dto/loan-list-response.dto'
-import { TypeOrmLoanCalculationRepository } from '@infrastructure/database/repositories/loan-calculation.typeorm.repository'
 import { CacheService } from '@infrastructure/cache/service/cache.service'
 
 @Injectable()
 export class LoanCalculatorService {
+  private readonly logger = new Logger(LoanCalculatorService.name);
+
   constructor(
-    private readonly repo: TypeOrmLoanCalculationRepository,
+    @Inject('LoanCalculationRepository')
+    private readonly repo: LoanCalculationRepository,
     private readonly cacheService: CacheService,
   ) {}
 
   async calculate(input: CalculateLoanDto): Promise<LoanResponseDto> {
     const cacheKey = `loan_calc_${input.amount}_${input.interestRate}_${input.termInMonths}`
-    const cachedResult = await this.cacheService.get<LoanResponseDto>(cacheKey)
-    if (cachedResult) {
-      return cachedResult
+    
+    // Try to get from cache (Fail-safe)
+    try {
+      const cachedResult = await this.cacheService.get<LoanResponseDto>(cacheKey)
+      if (cachedResult) {
+        this.logger.debug(`Cache HIT for key: ${cacheKey}`)
+        return cachedResult
+      }
+    } catch (error) {
+      this.logger.warn(`Cache GET failed for key: ${cacheKey} - Continuing execution`, error instanceof Error ? error.stack : '')
     }
 
     const domain = LoanCalculation.create({
@@ -45,12 +54,18 @@ export class LoanCalculatorService {
       payments,
     }
 
-    await this.cacheService.set(cacheKey, result)
+    // Try to set cache (Fail-safe)
+    try {
+      await this.cacheService.set(cacheKey, result)
+    } catch (error) {
+      this.logger.warn(`Cache SET failed for key: ${cacheKey}`, error instanceof Error ? error.stack : '')
+    }
 
     return result
   }
 
   async findAll(): Promise<LoanListResponseDto[]> {
+    
     const items = await this.repo.list()
     return items.map(d => ({
       amount: d.amount,

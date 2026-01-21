@@ -24,7 +24,14 @@ import { CacheService } from './cache/service/cache.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [TypeOrmLoanCalculationRepository, CacheService],
-  exports: [TypeOrmLoanCalculationRepository, CacheService],
+  providers: [
+    TypeOrmLoanCalculationRepository,
+    {
+      provide: 'LoanCalculationRepository',
+      useClass: TypeOrmLoanCalculationRepository,
+    },
+    CacheService,
+  ],
+  exports: [TypeOrmLoanCalculationRepository, 'LoanCalculationRepository', CacheService],
 })
 export class InfrastructureModule {}

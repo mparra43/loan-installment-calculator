@@ -1,0 +1,67 @@
+services:
+  # Base de datos
+  postgres:
+    image: postgres:16-alpine
+    container_name: loan_postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - loan_network
+
+  # Backend (NestJS)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    container_name: loan_backend
+    restart: always
+    env_file:
+      - .env
+    environment:
+      # Sobrescribimos DB_HOST para usar el nombre del servicio en la red interna
+      - DB_HOST=postgres
+    command: sh -c "npx typeorm migration:run -d dist/config/typeorm.config.js && node dist/main"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${PORT}:3000"
+    networks:
+      - loan_network
+
+  # Frontend (Nginx + React)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    container_name: loan_frontend
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - loan_network
+
+volumes:
+  postgres_data:
+
+networks:
+  loan_network:
+    driver: bridge

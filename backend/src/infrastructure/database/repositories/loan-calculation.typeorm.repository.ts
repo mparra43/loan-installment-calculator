@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { LoanCalculationEntity } from '../entities/loan-calculation.typeorm.entity'
@@ -7,28 +7,52 @@ import { LoanCalculation } from '../../../modules/loan-calculator/domain/entitie
 
 @Injectable()
 export class TypeOrmLoanCalculationRepository implements LoanCalculationRepository {
+  private readonly logger = new Logger(TypeOrmLoanCalculationRepository.name);
+
   constructor(
     @InjectRepository(LoanCalculationEntity)
     private readonly repo: Repository<LoanCalculationEntity>,
   ) {}
 
   async save(domain: LoanCalculation): Promise<void> {
-    const entity = this.toEntity(domain)
-    await this.repo.save(entity)
+    try {
+      const entity = this.toEntity(domain)
+      await this.repo.save(entity)
+      this.logger.debug(`Saved loan calculation with ID: ${domain.id}`)
+    } catch (error) {
+      this.logger.error(`Failed to save loan calculation with ID: ${domain.id}`, error instanceof Error ? error.stack : '')
+      throw error
+    }
   }
 
   async findById(id: string): Promise<LoanCalculation | null> {
-    const entity = await this.repo.findOne({ where: { id } })
-    return entity ? this.toDomain(entity) : null
+    try {
+      const entity = await this.repo.findOne({ where: { id } })
+      return entity ? this.toDomain(entity) : null
+    } catch (error) {
+      this.logger.error(`Failed to find loan calculation with ID: ${id}`, error instanceof Error ? error.stack : '')
+      throw error
+    }
   }
 
   async list(): Promise<LoanCalculation[]> {
-    const rows = await this.repo.find({ order: { createdAt: 'DESC' } })
-    return rows.map(r => this.toDomain(r))
+    try {
+      const rows = await this.repo.find({ order: { createdAt: 'DESC' } })
+      return rows.map(r => this.toDomain(r))
+    } catch (error) {
+      this.logger.error('Failed to list loan calculations', error instanceof Error ? error.stack : '')
+      throw error
+    }
   }
 
   async delete(id: string): Promise<void> {
-    await this.repo.delete({ id })
+    try {
+      await this.repo.delete({ id })
+      this.logger.debug(`Deleted loan calculation with ID: ${id}`)
+    } catch (error) {
+      this.logger.error(`Failed to delete loan calculation with ID: ${id}`, error instanceof Error ? error.stack : '')
+      throw error
+    }
   }
 
   private toEntity(d: LoanCalculation): LoanCalculationEntity {
