@@ -97,43 +97,56 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
-## Base de datos (Docker)
+## 🚀 Despliegue con Docker Compose
 
-- Imagen: postgres:16-alpine (oficial y estable)
-- Variables: se leen de `backend/.env` (DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE)
-- Persistencia: volumen `postgres-data` mantiene los datos entre reinicios
-- Red: red interna `app-net` para comunicación segura con el backend
+La forma más rápida de levantar toda la aplicación (Backend + Frontend + Base de Datos) es utilizando Docker Compose desde la raíz del proyecto.
 
-### Levantar la base de datos
+### Requisitos previos
+- Docker Desktop instalado y corriendo.
+- Puertos libres: 3000 (Backend), 8080 (Frontend), 5432 (PostgreSQL).
 
-```powershell
-cd c:\Users\lorep\Desktop\loan-installment-calculator\backend
-docker compose up -d postgres
+### Instrucciones de Ejecución
+
+1. Abre una terminal en la raíz del proyecto:
+   ```powershell
+   cd c:\Users\lorep\Desktop\loan-installment-calculator
+   ```
+
+2. Levanta los servicios (esto construirá las imágenes si es necesario):
+   ```powershell
+   docker compose up --build
+   ```
+
+3. Espera a que los contenedores estén listos. Verás logs indicando que el backend se conectó a la base de datos y el frontend está servido por Nginx.
+
+Para detener los servicios, usa `Ctrl+C` o ejecuta `docker compose down`.
+
+## 📡 Endpoints Disponibles
+
+La API del Backend corre en `http://localhost:3000`.
+
+| Método | Ruta | Descripción | Body (JSON) |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/loans` | Calcular un nuevo préstamo | `{ "amount": 10000, "interestRate": 0.12, "termInMonths": 12 }` |
+| **GET** | `/loans` | Listar historial de cálculos | - |
+| **GET** | `/api/docs` | Documentación Swagger UI | - |
+
+## 🧪 Cómo probar la aplicación
+
+### 1. Vía Frontend (Navegador)
+Accede a **http://localhost:8080** en tu navegador.
+- **Formulario**: Ingresa monto, interés y plazo. Haz clic en "Calcular".
+- **Resultado**: Verás la cuota mensual y la tabla de amortización.
+- **Historial**: Navega a la sección de historial para ver cálculos anteriores.
+
+### 2. Vía Swagger UI
+Accede a **http://localhost:3000/api/docs**.
+- Interfaz gráfica interactiva para probar todos los endpoints de la API directamente.
+
+### 3. Vía cURL o Postman
+**Ejemplo de cálculo (POST):**
+```bash
+curl -X POST http://localhost:3000/loans \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 5000, "interestRate": 0.05, "termInMonths": 12}'
 ```
-
-### Levantar backend + base de datos
-
-```powershell
-cd c:\Users\lorep\Desktop\loan-installment-calculator\backend
-docker compose up -d
-```
-
-### Cambiar credenciales o nombre de BD
-
-- Edita `backend/.env`:
-  - DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE
-- Aplica cambios:
-
-```powershell
-cd c:\Users\lorep\Desktop\loan-installment-calculator\backend
-docker compose down
-docker compose up -d
-```
-
-### Scripts de inicialización (opcional)
-
-- Coloca archivos `.sql` o `.sh` en `backend/docker/initdb/` para crear esquemas/datos básicos en el primer arranque.
-
-### Healthcheck
-
-- El backend espera a que Postgres esté listo antes de conectarse.
