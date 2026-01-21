@@ -25,14 +25,21 @@ export interface FormProps {
     floating?: boolean
     disabled?: boolean
   }
-  onSubmit: (data: any) => void
+  onSubmit: (data: any) => Promise<void> | void
   defaultValues?: any
 }
 
 export function Form({ schema, fields, buttonProps, onSubmit, defaultValues }: FormProps) {
-  const { control, handleSubmit } = useForm<any>({ resolver: zodResolver(schema as any), defaultValues });
+  const { control, handleSubmit, reset } = useForm<any>({ resolver: zodResolver(schema as any), defaultValues });
 
-  const submitHandler: SubmitHandler<any> = (data) => onSubmit(data);
+  const submitHandler: SubmitHandler<any> = async (data) => {
+    try {
+      await onSubmit(data);
+      reset(); 
+    } catch (error) {
+      console.error('Form submission error:', error);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="w-full grid grid-cols-3 gap-4">
@@ -52,7 +59,6 @@ export function Form({ schema, fields, buttonProps, onSubmit, defaultValues }: F
 
       <div className="w-full col-span-3">
         <Button
-        
           label={buttonProps.label}
           type={buttonProps.type === "submit" ? "submit" : "button"}
           variant={buttonProps.variant}

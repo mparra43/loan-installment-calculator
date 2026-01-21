@@ -76,6 +76,26 @@
 Configurar en `main.ts` (o módulo correspondiente):
 
 
+## ⚡ Backend Optimization (Cache)
+
+### 1. Servicio de Caché (`cache.service.ts`)
+- Implementar un servicio de caché in-memory que abstraiga la implementación concreta del almacenamiento.
+- Debe exponer métodos claros como: `get`, `set`, `delete` y `clear`.
+
+### 2. Infraestructura (`InfrastructureModule`)
+- Configurar el módulo de infraestructura para registrar el servicio de caché.
+- Obtener el TTL desde variables de entorno definidas en el archivo `.env`.
+- Inyectar el valor del TTL de forma tipada y centralizada.
+
+### 3. Servicio de Dominio (`loan-calculator.service.ts`)
+- **Estrategia**:
+  1. Generar una clave de caché basada en los parámetros de entrada: monto, tasa, plazo.
+  2. Consultar el caché para verificar si el resultado ya existe.
+  3. Retornar el valor almacenado sin recalcular.
+  4. Si no existe: Ejecutar el cálculo y guardar el resultado en caché usando el TTL configurado.
+- Mantener la lógica de caché como una optimización, sin alterar el 
+
+---
 
 
 ## 🎨 Frontend Layer
