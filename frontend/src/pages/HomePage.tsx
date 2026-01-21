@@ -41,24 +41,24 @@ export function HomePage() {
           <div className="grid grid-cols-3 gap-4 py-8">
             <div className="p-4 bg-white rounded-md border">
               <p className="text-sm text-gray-500">Pago mensual</p>
-              <p className="text-xl font-semibold">{state.monthlyPayment.toFixed(2)}</p>
+              <p className="text-xl font-semibold">${state.monthlyPayment.toLocaleString('es-CO')}</p>
             </div>
             <div className="p-4 bg-white rounded-md border">
               <p className="text-sm text-gray-500">Total intereses</p>
-              <p className="text-xl font-semibold">{state.totalInterest.toFixed(2)}</p>
+              <p className="text-xl font-semibold">${state.totalInterest.toLocaleString('es-CO')}</p>
             </div>
             <div className="p-4 bg-white rounded-md border">
               <p className="text-sm text-gray-500">Total pagado</p>
-              <p className="text-xl font-semibold">{state.totalAmount.toFixed(2)}</p>
+              <p className="text-xl font-semibold">${state.totalAmount.toLocaleString('es-CO')}</p>
             </div>
           </div>
           <Table<PaymentDto>
             columns={[
               { key: 'month', header: 'Mes' },
-              { key: 'payment', header: 'Pago', format: (v) => Number(v).toFixed(2) },
-              { key: 'principal', header: 'Capital', format: (v) => Number(v).toFixed(2) },
-              { key: 'interest', header: 'Interés', format: (v) => Number(v).toFixed(2) },
-              { key: 'balance', header: 'Saldo', format: (v) => Number(v).toFixed(2) },
+              { key: 'payment', header: 'Pago', format: (v) => `$${v.toLocaleString('es-CO')}` },
+              { key: 'principal', header: 'Capital', format: (v) => `$${v.toLocaleString('es-CO')}` },
+              { key: 'interest', header: 'Interés', format: (v) => `$${v.toLocaleString('es-CO')}` },
+              { key: 'balance', header: 'Saldo', format: (v) => `$${v.toLocaleString('es-CO')}` },
             ]}
             data={state.payments}
           />

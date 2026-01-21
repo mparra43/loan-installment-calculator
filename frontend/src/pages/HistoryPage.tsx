@@ -15,16 +15,15 @@ export function HistoryPage() {
 
   return (
     <div className="h-screen flex flex-col items-center justify-center">
-      <h1 className="text-2xl font-semibold pb-8">Historial</h1>
+      <h1 className="text-2xl font-semibold py-8">Historial</h1>
       <Table<LoanListResponseDto>
         columns={[
-          { key: 'amount', header: 'Monto', format: (v) => Number(v).toFixed(2) },
+          { key: 'amount', header: 'Monto', format: (v) => `$${v.toLocaleString('es-CO')}` },
           { key: 'termMonths', header: 'Meses' },
-          { key: 'interestRate', header: 'Tasa', format: (v) => Number(v).toFixed(4) },
-          { key: 'interestType', header: 'Tipo' },
-          { key: 'monthlyPayment', header: 'Mensual', format: (v) => Number(v).toFixed(2) },
-          { key: 'totalInterest', header: 'Interés total', format: (v) => Number(v).toFixed(2) },
-          { key: 'totalPayment', header: 'Total', format: (v) => Number(v).toFixed(2) },
+          { key: 'interestRate', header: 'Tasa', format: (v) => v },
+          { key: 'monthlyPayment', header: 'Mensual', format: (v) => `$${v.toLocaleString('es-CO')}` },
+          { key: 'totalInterest', header: 'Interés total', format: (v) => `$${v.toLocaleString('es-CO')}` },
+          { key: 'totalPayment', header: 'Total', format: (v) => `$${v.toLocaleString('es-CO')}` },
         ]}
         data={data}
       />

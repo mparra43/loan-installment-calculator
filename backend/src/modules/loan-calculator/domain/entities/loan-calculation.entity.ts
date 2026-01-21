@@ -40,8 +40,11 @@ export class LoanCalculation {
     if (!Number.isFinite(interestRate) || interestRate < 0) throw new Error('interestRate inválido')
     if (!Number.isFinite(termInMonths) || termInMonths <= 0) throw new Error('termInMonths inválido')
 
-    const monthlyRate = interestRate / 12
-    const monthlyPayment = round2(monthlyRate === 0 ? amount / termInMonths : (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -termInMonths)))
+    // Sistema americano: tasa anual dividida por 12 para mensual
+    const monthlyRate = interestRate / 100 / 12
+    const monthlyPayment = Math.round(
+      monthlyRate === 0 ? amount / termInMonths : (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -termInMonths))
+    )
 
     let balance = amount
     const payments: PaymentVO[] = []
@@ -49,21 +52,25 @@ export class LoanCalculation {
     let paymentSum = 0
 
     for (let m = 1; m <= termInMonths; m++) {
-      const interest = round2(balance * monthlyRate)
-      let principal = round2(monthlyPayment - interest)
+      const interest = Math.round(balance * monthlyRate)
+      let principal = monthlyPayment - interest
+      
       if (m === termInMonths) {
-        principal = round2(balance)
+        // Último pago: ajustar para saldar la deuda completamente
+        principal = balance
       }
-      const payment = round2(principal + interest)
-      balance = round2(balance - principal)
+      
+      const payment = principal + interest
+      balance = balance - principal
+      
       payments.push(PaymentVO.create({ month: m, payment, principal, interest, balance }))
-      interestSum = round2(interestSum + interest)
-      paymentSum = round2(paymentSum + payment)
+      interestSum += interest
+      paymentSum += payment
     }
 
     return new LoanCalculation(
       id ?? randomId(),
-      round2(amount),
+      Math.round(amount),
       interestRate,
       termInMonths,
       monthlyPayment,
@@ -73,10 +80,6 @@ export class LoanCalculation {
       new Date(),
     )
   }
-}
-
-function round2(n: number) {
-  return Math.round(n * 100) / 100
 }
 
 function randomId() {
