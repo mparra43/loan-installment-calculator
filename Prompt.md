@@ -161,6 +161,6 @@ interface FormProps {
 
 ---
 
-## 🛠 Tareas Pendientes (Refactor)
-- [ ] Modificar `HomePage.tsx` para usar `loanService` en el envío del formulario.
-- [ ] Modificar `HistoryPage.tsx` para usar `loanService` en la obtención del historial.
+## 🛠  Refactor
+ Modificar `HomePage.tsx` para usar `loanService` en el envío del formulario.
+-Modificar `HistoryPage.tsx` para usar `loanService` en la obtención del historial.
