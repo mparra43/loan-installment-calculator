@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { LoanCalculation } from '@modules/loan-calculator/domain/entities/loan-calculation.entity'
-import { LoanCalculationRepository } from '@modules/loan-calculator/domain/repositories/loan-calculation.repository.interface'
+import { LoanCalculationRepository } from '@modules/loan-calculator/domain/ports/loan-calculation.interface'
 import { CalculateLoanDto } from '@modules/loan-calculator/presentation/dto/calculate-loan.dto'
 import { LoanResponseDto } from '@modules/loan-calculator/presentation/dto/loan-response.dto'
 import { PaymentDto } from '@modules/loan-calculator/presentation/dto/payment.dto'

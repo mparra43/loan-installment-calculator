@@ -7,9 +7,9 @@ interface Props<T> {
 
 export function Table<T extends Record<string, any>>({ columns, data }: Props<T>) {
   return (
-    <div className="overflow-x-auto rounded-md border border-gray-200">
+    <div className="overflow-x-auto rounded-md border border-gray-200 max-h-[20rem] overflow-y-auto">
       <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+        <thead className="bg-gray-50 sticky top-0 z-10">
           <tr>
             {columns.map((c) => (
               <th key={String(c.key)} className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

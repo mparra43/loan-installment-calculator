@@ -78,52 +78,89 @@ Configurar en `main.ts` (o módulo correspondiente):
 
 
 
-## FRONTEND
+## 🎨 Frontend Layer
 
-en frontend 1. configura TailwindCSS con estilos globales y utilidades base de Tailwind., asegurar compatibilidad con react-compiler., 2.en src crea una estructura escalable de carpetas components, pages, routes, schemas, ui, 3.configura React Route y agrega una ruta / y /historial 4.en components crea componetes reutilizables de inputNumber que Manejo de errores y labels, Button con las siguientes props  label: string;
+### 1. Configuración Inicial
+- **TailwindCSS**: Configurar estilos globales y utilidades base. Asegurar compatibilidad con `react-compiler`.
+- **Estructura de Carpetas**: `src/{components, pages, routes, schemas, ui}`.
+- **Routing**: Configurar React Router con rutas `/` (Home) y `/historial` (History).
 
-type?: ButtonType;
+### 2. Componentes Reutilizables (`components`)
 
-onClick?: () => void;
+#### `InputNumber`
+- Manejo de errores y labels.
 
-disabled?: boolean; Form reutilizable que reciba las siguientes props: type FieldConfig = {
+#### `Button`
+Props:
+```typescript
+interface ButtonProps {
+  label: string;
+  type?: ButtonType;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+```
 
-label: string;
-
-name: string;
-
-placeholder?: string;
-
-type?: "text" | "number"
-
-rules?: RegisterOptions;
-
-inputType: "text" | "date";
-
+#### `Form`
+Formulario reutilizable con integración `react-hook-form` + `zod`.
+Props:
+```typescript
+type FieldConfig = {
+  label: string;
+  name: string;
+  placeholder?: string;
+  type?: "text" | "number";
+  rules?: RegisterOptions;
+  inputType: "text" | "date";
 };
 
 interface FormProps {
+  schema: ZodSchema<any>;
+  fields: FieldConfig[];
+  buttonProps: {
+    label: string;
+    type?: "submit" | "button";
+    variant?: "primary" | "secondary";
+    floating?: boolean;
+    disabled?: boolean;
+  };
+  onSubmit: (data: any) => void;
+  defaultValues?: any;
+}
+```
 
-schema: ZodSchema<any>;
+#### `Table`
+- Recibe columnas y datos por props.
+- Renderiza diferentes tipos de datos dinámicamente.
 
-fields: FieldConfig[];
+### 3. Páginas (`pages`)
 
-buttonProps: {
+#### Home (`/`)
+- Formulario de cálculo de préstamos usando el componente `Form`.
+- Campos:
+  - Monto
+  - Tasa de interés mensual
+  - Plazo (en meses)
+- **Acción**: Enviar petición POST usando `loan-installment-calculator.ts`.
 
-label: string;
+#### History (`/historial`)
+- Visualización del historial de préstamos.
+- **Acción**: Obtener datos GET usando `loan-installment-calculator.ts`.
 
-type?: "submit" | "button";
+### 4. Integración API (`services`)
 
-variant?: "primary" | "secondary";
+#### `base-api.ts`
+- Interceptor global con Axios.
+- Manejo centralizado de errores (4xx, 5xx, timeouts).
+- Reutilización de instancia base.
 
-floating?: boolean;
+#### `loan-installment-calculator.ts`
+- **POST /loans**: Crear cálculo/préstamo.
+- **GET /loans**: Obtener historial.
+- Tipado estricto de request/response.
 
-disabled?: boolean;
+---
 
-};
-
-onSubmit: (data: any) => void;
-
-defaultValues?: any;
-
-} para el boton del formulario debe usar el componete button  y table que reciba columnas y datos por props, debe renderizar diferentes tipos de datos 5. en la ruta / debe crear un formulario con el componete form, el fomulario debe tner los siguientes campos: monto, tasa de interés mensual, plazo (en meses),
+## 🛠 Tareas Pendientes (Refactor)
+- [ ] Modificar `HomePage.tsx` para usar `loanService` en el envío del formulario.
+- [ ] Modificar `HistoryPage.tsx` para usar `loanService` en la obtención del historial.

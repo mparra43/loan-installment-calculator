@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { LoanCalculationEntity } from '../entities/loan-calculation.typeorm.entity'
-import { LoanCalculationRepository } from '../../../modules/loan-calculator/domain/repositories/loan-calculation.repository.interface'
+import { LoanCalculationRepository } from '../../../modules/loan-calculator/domain/ports/loan-calculation.interface'
 import { LoanCalculation } from '../../../modules/loan-calculator/domain/entities/loan-calculation.entity'
 
 @Injectable()

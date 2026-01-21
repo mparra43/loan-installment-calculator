@@ -35,7 +35,7 @@ export function Form({ schema, fields, buttonProps, onSubmit, defaultValues }: F
   const submitHandler: SubmitHandler<any> = (data) => onSubmit(data);
 
   return (
-    <form onSubmit={handleSubmit(submitHandler)} className="flex flex-col gap-4 w-full">
+    <form onSubmit={handleSubmit(submitHandler)} className="w-full grid grid-cols-3 gap-4">
       {fields.map((f) => {
         
           return (
@@ -50,8 +50,9 @@ export function Form({ schema, fields, buttonProps, onSubmit, defaultValues }: F
           );
       })}
 
-      <div className="w-full">
+      <div className="w-full col-span-3">
         <Button
+        
           label={buttonProps.label}
           type={buttonProps.type === "submit" ? "submit" : "button"}
           variant={buttonProps.variant}

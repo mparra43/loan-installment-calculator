@@ -19,7 +19,7 @@ export function InputNumber({ label, name, control, placeholder, rules, }: Props
         name={name}
         control={control}
         rules={combinedRules}
-        defaultValue=""
+        defaultValue={undefined}
         render={({ field, fieldState }) => (
           <>
             <input
@@ -29,6 +29,10 @@ export function InputNumber({ label, name, control, placeholder, rules, }: Props
               {...field}
               value={field.value ?? ""}
               placeholder={placeholder}
+              onChange={(e) => {
+                const val = e.target.value;
+                field.onChange(val === "" ? undefined : Number(val));
+              }}
               className={`w-full rounded-md border px-3 py-2 ${fieldState.error ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
             {fieldState.error && (

@@ -1,28 +1,22 @@
 import { useEffect, useState } from 'react'
 import { Table } from '../components/Table'
-
-type Row = {
-  amount: number
-  termMonths: number
-  interestRate: number
-  interestType: string
-  totalInterest: number
-  totalPayment: number
-  monthlyPayment: number
-}
-
-const API = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'
+import { loanService, type LoanListResponseDto } from '../services/loan-installment-calculator'
 
 export function HistoryPage() {
-  const [data, setData] = useState<Row[]>([])
+  const [data, setData] = useState<LoanListResponseDto[]>([])
   useEffect(() => {
-    fetch(`${API}/loans`).then(r => r.json()).then(setData).catch(() => setData([]))
+    loanService.getLoanHistory()
+      .then(setData)
+      .catch((error) => {
+        console.error('Error fetching history:', error)
+        setData([])
+      })
   }, [])
 
   return (
-    <div className="container py-8 space-y-6">
-      <h1 className="text-2xl font-semibold">Historial</h1>
-      <Table<Row>
+    <div className="h-screen flex flex-col items-center justify-center">
+      <h1 className="text-2xl font-semibold pb-8">Historial</h1>
+      <Table<LoanListResponseDto>
         columns={[
           { key: 'amount', header: 'Monto', format: (v) => Number(v).toFixed(2) },
           { key: 'termMonths', header: 'Meses' },
